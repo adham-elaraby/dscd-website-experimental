@@ -1,40 +1,5 @@
 import { supabase } from '../lib/supabase.js';
 
-// Sample events
-const sampleEvents = [
-  {
-    title: "LeetCode TechJam 2.0",
-    description: "Join us for the second edition of our algorithmic coding night! Tackle new LeetCode-style challenges, compete solo or in teams, and test your skills under time pressure. Expect fun twists, fresh problems, and great vibes with fellow coders. Snacks, prizes, and tech talks included!",
-    date: "2024-12-15T18:00:00Z",
-    location: "TU Darmstadt Campus",
-    max_participants: 120,
-    tags: ["challenge", "problem solving", "prizes"],
-    image_url: "/images/leetcode.jpg",
-    registration_url: "https://example.com/register",
-    is_featured: true
-  },
-  {
-    title: "Monthly Coding Space",
-    description: "Connect with fellow students and developers at our Monthly Coding Space! This relaxed meetup is all about sharing project ideas, asking questions, and building community. Whether you're just starting out or already deep into development, join us to chat tech, get inspired, and find collaborators. All experience levels and interests welcome!",
-    date: "2024-12-01T14:00:00Z",
-    location: "DSC Workspace",
-    max_participants: 30,
-    tags: ["workshop", "community", "project exchange"],
-    image_url: "/images/github.jpg",
-    is_featured: false
-  },
-  {
-    title: "AI/ML Workshop Series",
-    description: "Dive into the world of Artificial Intelligence and Machine Learning with our comprehensive workshop series. Learn about neural networks, data preprocessing, and model training through hands-on projects.",
-    date: "2024-11-20T16:00:00Z",
-    location: "CS Building Room 101",
-    max_participants: 50,
-    tags: ["AI", "ML", "workshop", "hands-on"],
-    image_url: "/images/aiml.jpg",
-    is_featured: true
-  }
-];
-
 // Sample projects
 const sampleProjects = [
   {
@@ -95,22 +60,11 @@ const sampleTeamMembers = [
   }
 ];
 
+// Events are intentionally NOT seeded here. They are created exclusively through
+// the admin panel by a signed-in admin, so this script only seeds projects and team.
 async function populateDatabase() {
   try {
     console.log('Starting database population...');
-
-    // Insert events
-    console.log('Inserting events...');
-    const { data: events, error: eventsError } = await supabase
-      .from('events')
-      .insert(sampleEvents)
-      .select();
-
-    if (eventsError) {
-      console.error('Error inserting events:', eventsError);
-    } else {
-      console.log(`Inserted ${events.length} events`);
-    }
 
     // Insert projects
     console.log('Inserting projects...');

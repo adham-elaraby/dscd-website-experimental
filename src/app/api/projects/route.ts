@@ -1,8 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createSupabaseClient } from '@/lib/supabase';
-import { dbProjectToProject, projectToDbProject } from '@/lib/utils/converters';
+import { dbProjectToProject } from '@/lib/utils/converters';
 
 export const runtime = 'edge';
+
+// Read-only on purpose. Writes go exclusively through
+// /api/admin/projects, which requires a signed-in admin via verifyAdminRequest().
 
 export async function GET() {
   try {
@@ -33,63 +36,6 @@ export async function GET() {
       {
         success: false,
         error: 'Failed to fetch projects',
-        message: 'Internal server error'
-      },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-
-    // Validate required fields
-    const requiredFields = ['title', 'description', 'imageUrl', 'technologies'];
-    for (const field of requiredFields) {
-      if (!body[field]) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: `Missing required field: ${field}`,
-            message: 'Validation error'
-          },
-          { status: 400 }
-        );
-      }
-    }
-
-    // Convert frontend project to database format
-    const dbProject = projectToDbProject(body);
-
-    // Create Supabase client that works with Cloudflare env bindings
-    const supabase = createSupabaseClient();
-
-    const { data, error } = await supabase
-      .from('projects')
-      .insert(dbProject)
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
-
-    // Convert back to frontend format
-    const newProject = dbProjectToProject(data);
-
-    return NextResponse.json({
-      success: true,
-      data: newProject,
-      message: 'Project created successfully'
-    }, { status: 201 });
-  } catch (error) {
-    console.error('Error creating project:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to create project',
         message: 'Internal server error'
       },
       { status: 500 }

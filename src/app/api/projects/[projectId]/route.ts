@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseClient } from '@/lib/supabase';
-import { dbProjectToProject, projectToDbProject } from '@/lib/utils/converters';
+import { dbProjectToProject } from '@/lib/utils/converters';
 
 export const runtime = 'edge';
+
+// Read-only on purpose. Writes go exclusively through
+// /api/admin/projects/[projectId], which requires a signed-in admin via verifyAdminRequest().
 
 interface RouteParams {
   params: Promise<{ projectId: string }>;
@@ -49,94 +52,6 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       {
         success: false,
         error: 'Failed to fetch project',
-        message: 'Internal server error'
-      },
-      { status: 500 }
-    );
-  }
-}
-
-export async function PUT(request: NextRequest, { params }: RouteParams) {
-  try {
-    const { projectId } = await params;
-    const body = await request.json();
-
-    // Convert frontend project to database format
-    const dbProject = projectToDbProject(body);
-    dbProject.updated_at = new Date().toISOString();
-
-    // Create Supabase client that works with Cloudflare env bindings
-    const supabase = createSupabaseClient();
-
-    const { data, error } = await supabase
-      .from('projects')
-      .update(dbProject)
-      .eq('id', projectId)
-      .select()
-      .single();
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'Project not found',
-            message: 'The requested project does not exist'
-          },
-          { status: 404 }
-        );
-      }
-      console.error('Supabase error:', error);
-      throw error;
-    }
-
-    const updatedProject = dbProjectToProject(data);
-
-    return NextResponse.json({
-      success: true,
-      data: updatedProject,
-      message: 'Project updated successfully'
-    });
-  } catch (error) {
-    console.error('Error updating project:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to update project',
-        message: 'Internal server error'
-      },
-      { status: 500 }
-    );
-  }
-}
-
-export async function DELETE(request: NextRequest, { params }: RouteParams) {
-  try {
-    const { projectId } = await params;
-
-    // Create Supabase client that works with Cloudflare env bindings
-    const supabase = createSupabaseClient();
-
-    const { error } = await supabase
-      .from('projects')
-      .delete()
-      .eq('id', projectId);
-
-    if (error) {
-      console.error('Supabase error:', error);
-      throw error;
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Project deleted successfully'
-    });
-  } catch (error) {
-    console.error('Error deleting project:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to delete project',
         message: 'Internal server error'
       },
       { status: 500 }
