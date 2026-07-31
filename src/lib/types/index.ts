@@ -88,6 +88,7 @@ export interface TeamMember {
     github?: string;
     twitter?: string;
     email?: string;
+    website?: string;
   };
   position: number;
   isLeadership?: boolean;
@@ -103,6 +104,7 @@ export interface DatabaseTeamMember {
   github_url: string | null;
   linkedin_url: string | null;
   twitter_url: string | null;
+  website_url: string | null;
   email: string | null;
   is_leadership: boolean;
   order_index: number | null;
