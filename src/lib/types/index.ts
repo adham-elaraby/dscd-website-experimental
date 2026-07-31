@@ -15,6 +15,8 @@ export interface Event {
   targetAudience?: string;
   requirements?: string[];
   is_featured?: boolean;
+  /** Photos added after the event, shown as a carousel on the event page. */
+  galleryImages?: string[];
 }
 
 // Database types (matching Supabase schema)
@@ -34,6 +36,7 @@ export interface DatabaseEvent {
   learning_objectives: string[];
   target_audience: string | null;
   requirements: string[];
+  gallery_urls: string[];
   created_at: string;
   updated_at: string;
 }

@@ -3,11 +3,12 @@ import { notFound } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { getEventById } from '@/lib/data/events'
-import { formatDate, formatTime } from '@/lib/utils'
+import { formatDate, formatTime, isEventUpcoming } from '@/lib/utils'
 import { Calendar, MapPin, Clock, Users, ExternalLink, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Event } from '@/lib/types'
 import { AnimatedWrapper, AnimatedBackButton } from '@/components/events/AnimatedWrapper'
+import { EventGallery } from '@/components/events/EventGallery'
 
 export const runtime = 'edge';
 
@@ -25,6 +26,10 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   if (!event) {
     notFound()
   }
+
+  // Unlike the events list and homepage, this page is reached by id and so can
+  // render an event that has already happened. Registration must close with it.
+  const registrationOpen = isEventUpcoming(event.date)
 
   return (
     <div className="min-h-screen py-12">
@@ -104,6 +109,16 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
           </div>
         </AnimatedWrapper>
 
+        {/* Photos from the event, added by an admin after it took place */}
+        {event.galleryImages && event.galleryImages.length > 0 && (
+          <AnimatedWrapper delay={0.15}>
+            <div className="mb-8 space-y-4">
+              <h2 className="text-2xl font-bold">{t('gallery')}</h2>
+              <EventGallery images={event.galleryImages} title={event.title} />
+            </div>
+          </AnimatedWrapper>
+        )}
+
         {/* Event Content */}
         <AnimatedWrapper delay={0.2}>
           <div className="grid lg:grid-cols-3 gap-8">
@@ -158,17 +173,25 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
                 <Card>
                   <CardHeader>
                     <CardTitle>{t('joinEvent')}</CardTitle>
-                    <CardDescription>
-                      {t('registerNow')}
-                    </CardDescription>
+                    {registrationOpen && (
+                      <CardDescription>
+                        {t('registerNow')}
+                      </CardDescription>
+                    )}
                   </CardHeader>
                   <CardContent>
-                    <Button asChild className="w-full">
-                      <Link href={event.registrationLink} target="_blank">
-                        <ExternalLink className="w-4 h-4 mr-2" />
-                        {t('register')}
-                      </Link>
-                    </Button>
+                    {registrationOpen ? (
+                      <Button asChild className="w-full">
+                        <Link href={event.registrationLink} target="_blank">
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          {t('register')}
+                        </Link>
+                      </Button>
+                    ) : (
+                      <Button disabled className="w-full">
+                        {t('registrationClosed')}
+                      </Button>
+                    )}
                   </CardContent>
                 </Card>
               )}
