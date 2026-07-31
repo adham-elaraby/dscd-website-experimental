@@ -17,7 +17,8 @@ export function dbEventToEvent(dbEvent: DatabaseEvent): Event {
     learningObjectives: dbEvent.learning_objectives || [],
     targetAudience: dbEvent.target_audience || undefined,
     requirements: dbEvent.requirements || [],
-    is_featured: dbEvent.is_featured
+    is_featured: dbEvent.is_featured,
+    galleryImages: dbEvent.gallery_urls || []
   };
 }
 
@@ -35,7 +36,8 @@ export function eventToDbEvent(event: Partial<Event>): Partial<DatabaseEvent> {
     learning_objectives: event.learningObjectives || [],
     target_audience: event.targetAudience || null,
     requirements: event.requirements || [],
-    is_featured: event.is_featured || false
+    is_featured: event.is_featured || false,
+    gallery_urls: event.galleryImages || []
   };
 }
 

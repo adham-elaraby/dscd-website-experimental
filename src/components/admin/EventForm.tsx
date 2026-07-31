@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Event } from '@/lib/types'
 import { ImageUpload } from './ImageUpload'
+import { GalleryUpload } from './GalleryUpload'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -32,6 +33,9 @@ export function EventForm({ event, onSuccess, onCancel }: Props) {
     requirements: event?.requirements?.join('\n') ?? '',
     is_featured: event?.is_featured ?? false,
   })
+
+  // Kept out of `fields` because `set` only handles string | boolean values.
+  const [galleryImages, setGalleryImages] = useState<string[]>(event?.galleryImages ?? [])
 
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -62,6 +66,7 @@ export function EventForm({ event, onSuccess, onCancel }: Props) {
         learningObjectives: fields.learningObjectives.split('\n').map(s => s.trim()).filter(Boolean),
         requirements: fields.requirements.split('\n').map(s => s.trim()).filter(Boolean),
         is_featured: fields.is_featured,
+        galleryImages,
       }
 
       const url = isEdit ? `/api/admin/events/${event.id}` : '/api/admin/events'
@@ -175,6 +180,10 @@ export function EventForm({ event, onSuccess, onCancel }: Props) {
                 onChange={e => set('is_featured', e.target.checked)}
               />
               <Label htmlFor="is_featured">Featured event</Label>
+            </div>
+
+            <div className="sm:col-span-2 border-t pt-4">
+              <GalleryUpload urls={galleryImages} onChange={setGalleryImages} folder="events" />
             </div>
           </div>
 
