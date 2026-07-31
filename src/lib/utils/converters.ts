@@ -83,6 +83,7 @@ export function dbTeamMemberToTeamMember(dbMember: DatabaseTeamMember): TeamMemb
       github: dbMember.github_url || undefined,
       twitter: dbMember.twitter_url || undefined,
       email: dbMember.email || undefined,
+      website: dbMember.website_url || undefined,
     },
     position: dbMember.order_index || 0,
     isLeadership: dbMember.is_leadership,
@@ -99,6 +100,7 @@ export function teamMemberToDbTeamMember(member: Partial<TeamMember>): Partial<D
     github_url: member.socialLinks?.github || null,
     linkedin_url: member.socialLinks?.linkedin || null,
     twitter_url: member.socialLinks?.twitter || null,
+    website_url: member.socialLinks?.website || null,
     email: member.socialLinks?.email || null,
     order_index: member.position || null,
     is_leadership: false // Can be updated later

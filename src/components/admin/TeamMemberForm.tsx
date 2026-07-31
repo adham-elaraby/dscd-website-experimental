@@ -26,6 +26,7 @@ export function TeamMemberForm({ member, onSuccess, onCancel }: Props) {
     github: member?.socialLinks?.github ?? '',
     linkedin: member?.socialLinks?.linkedin ?? '',
     twitter: member?.socialLinks?.twitter ?? '',
+    website: member?.socialLinks?.website ?? '',
     email: member?.socialLinks?.email ?? '',
     isLeadership: member?.isLeadership ?? false,
     orderIndex: member?.position?.toString() ?? '',
@@ -56,6 +57,7 @@ export function TeamMemberForm({ member, onSuccess, onCancel }: Props) {
           github: fields.github || undefined,
           linkedin: fields.linkedin || undefined,
           twitter: fields.twitter || undefined,
+          website: fields.website || undefined,
           email: fields.email || undefined,
         },
         isLeadership: fields.isLeadership,
@@ -130,6 +132,11 @@ export function TeamMemberForm({ member, onSuccess, onCancel }: Props) {
             <div className="space-y-1.5">
               <Label htmlFor="twitter">Twitter URL</Label>
               <Input id="twitter" type="url" placeholder="https://twitter.com/…" value={fields.twitter} onChange={e => set('twitter', e.target.value)} />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="website">Portfolio / Website URL</Label>
+              <Input id="website" type="url" placeholder="https://yoursite.com" value={fields.website} onChange={e => set('website', e.target.value)} />
             </div>
 
             <div className="space-y-1.5">

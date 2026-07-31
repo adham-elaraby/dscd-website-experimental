@@ -25,42 +25,68 @@ import { TeamMember } from '@/lib/types'
 import { useState, useEffect } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 
+// Shared surface treatment for every card on this page: generous radius, hairline
+// border and a soft shadow that deepens as the card lifts on hover.
+const cardSurface =
+  'group h-full rounded-2xl border-border/60 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/5'
+
+function getInitials(name: string) {
+  return name
+    .split(' ')
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+}
+
+const socialLinkClass =
+  'rounded-full text-muted-foreground hover:bg-primary/10 hover:text-primary'
+
 function TeamMemberCard({ member, index }: { member: TeamMember; index: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
+      className="h-full"
     >
-      <Card className="h-full hover:shadow-lg transition-all duration-200">
-        <div className="aspect-square relative overflow-hidden rounded-t-lg bg-gradient-to-br from-primary/20 to-secondary/20">
-          {member.imageUrl ? (
-            <Image
-              src={member.imageUrl}
-              alt={member.name}
-              fill
-              sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-              className="object-cover"
-            />
-          ) : (
-            <div className="h-full w-full flex items-center justify-center">
-              <p className="text-muted-foreground text-sm">{member.name}</p>
+      <Card className={`${cardSurface} flex flex-col`}>
+        <CardHeader className="items-center pt-8 text-center">
+          {/* Gradient ring: padded wrapper shows through as a border around the avatar */}
+          <div className="mb-5 rounded-full bg-gradient-to-br from-primary via-primary/50 to-secondary p-[3px] transition-transform duration-300 group-hover:scale-105">
+            <div className="relative h-32 w-32 overflow-hidden rounded-full bg-card ring-2 ring-card sm:h-36 sm:w-36">
+              {member.imageUrl ? (
+                <Image
+                  src={member.imageUrl}
+                  alt={member.name}
+                  fill
+                  sizes="144px"
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-secondary">
+                  <span className="text-2xl font-semibold text-primary">
+                    {getInitials(member.name)}
+                  </span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        <CardHeader className="text-center">
+          </div>
           <CardTitle className="text-lg">{member.name}</CardTitle>
           <CardDescription className="font-medium text-primary">
             {member.role}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground text-center">{member.bio}</p>
+        <CardContent className="flex flex-1 flex-col items-center gap-5 pb-8">
+          <p className="flex-1 text-center text-sm leading-relaxed text-muted-foreground">
+            {member.bio}
+          </p>
 
           {member.socialLinks && (
-            <div className="flex justify-center space-x-3">
+            <div className="flex justify-center gap-2">
               {member.socialLinks.email && (
-                <Button variant="ghost" size="icon" asChild>
+                <Button variant="ghost" size="icon" className={socialLinkClass} asChild>
                   <a href={`mailto:${member.socialLinks.email}`}>
                     <Mail className="h-4 w-4" />
                     <span className="sr-only">Email</span>
@@ -68,7 +94,7 @@ function TeamMemberCard({ member, index }: { member: TeamMember; index: number }
                 </Button>
               )}
               {member.socialLinks.linkedin && (
-                <Button variant="ghost" size="icon" asChild>
+                <Button variant="ghost" size="icon" className={socialLinkClass} asChild>
                   <a href={member.socialLinks.linkedin} target="_blank" rel="noopener noreferrer">
                     <Linkedin className="h-4 w-4" />
                     <span className="sr-only">LinkedIn</span>
@@ -76,7 +102,7 @@ function TeamMemberCard({ member, index }: { member: TeamMember; index: number }
                 </Button>
               )}
               {member.socialLinks.github && (
-                <Button variant="ghost" size="icon" asChild>
+                <Button variant="ghost" size="icon" className={socialLinkClass} asChild>
                   <a href={member.socialLinks.github} target="_blank" rel="noopener noreferrer">
                     <Github className="h-4 w-4" />
                     <span className="sr-only">GitHub</span>
@@ -84,10 +110,18 @@ function TeamMemberCard({ member, index }: { member: TeamMember; index: number }
                 </Button>
               )}
               {member.socialLinks.twitter && (
-                <Button variant="ghost" size="icon" asChild>
+                <Button variant="ghost" size="icon" className={socialLinkClass} asChild>
                   <a href={member.socialLinks.twitter} target="_blank" rel="noopener noreferrer">
                     <Twitter className="h-4 w-4" />
                     <span className="sr-only">Twitter</span>
+                  </a>
+                </Button>
+              )}
+              {member.socialLinks.website && (
+                <Button variant="ghost" size="icon" className={socialLinkClass} asChild>
+                  <a href={member.socialLinks.website} target="_blank" rel="noopener noreferrer">
+                    <Globe className="h-4 w-4" />
+                    <span className="sr-only">{`${member.name}'s portfolio website`}</span>
                   </a>
                 </Button>
               )}
@@ -96,6 +130,23 @@ function TeamMemberCard({ member, index }: { member: TeamMember; index: number }
         </CardContent>
       </Card>
     </motion.div>
+  )
+}
+
+function TeamMemberCardSkeleton() {
+  return (
+    <Card className="h-full rounded-2xl border-border/60 shadow-sm">
+      <CardHeader className="items-center pt-8">
+        <Skeleton className="mb-5 h-32 w-32 rounded-full sm:h-36 sm:w-36" />
+        <Skeleton className="h-5 w-32" />
+        <Skeleton className="h-4 w-24" />
+      </CardHeader>
+      <CardContent className="space-y-2 pb-8">
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="mx-auto h-3 w-5/6" />
+        <Skeleton className="mx-auto h-3 w-2/3" />
+      </CardContent>
+    </Card>
   )
 }
 
@@ -217,17 +268,17 @@ export default function AboutClient({ locale }: AboutClientProps) {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className="h-full">
+              <Card className={cardSurface}>
                 <CardHeader>
-                  <div className="flex items-center space-x-4">
-                    <div className="p-2 bg-primary/10 rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 ring-1 ring-inset ring-primary/10 transition-colors duration-300 group-hover:from-primary/25 group-hover:to-primary/10">
                       <goal.icon className="h-6 w-6 text-primary" />
                     </div>
                     <CardTitle className="text-lg">{goal.title}</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground">{goal.description}</p>
+                  <p className="leading-relaxed text-muted-foreground">{goal.description}</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -259,15 +310,15 @@ export default function AboutClient({ locale }: AboutClientProps) {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className="text-center h-full">
-                <CardHeader>
-                  <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
+              <Card className={`${cardSurface} text-center`}>
+                <CardHeader className="pt-8">
+                  <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary/15 to-primary/5 ring-1 ring-inset ring-primary/10 transition-transform duration-300 group-hover:scale-110">
                     <value.icon className="h-8 w-8 text-primary" />
                   </div>
                   <CardTitle>{value.title}</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">{value.description}</p>
+                <CardContent className="pb-8">
+                  <p className="leading-relaxed text-muted-foreground">{value.description}</p>
                 </CardContent>
               </Card>
             </motion.div>
@@ -281,15 +332,17 @@ export default function AboutClient({ locale }: AboutClientProps) {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
         viewport={{ once: true }}
-        className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl"
+        className="group relative aspect-[16/9] w-full overflow-hidden rounded-3xl shadow-xl shadow-primary/5"
       >
         <Image
           src="/images/team/group.jpg"
           alt={t('team.title')}
           fill
           sizes="(min-width: 1280px) 1200px, 100vw"
-          className="object-cover"
+          className="object-cover transition-transform duration-700 group-hover:scale-105"
         />
+        {/* Inset hairline keeps the photo edge crisp against light backgrounds */}
+        <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-black/10" />
       </motion.div>
 
       {/* Leadership Team Section */}
@@ -311,14 +364,7 @@ export default function AboutClient({ locale }: AboutClientProps) {
           {loading ? (
             // Loading skeleton for leadership team
             Array.from({ length: 3 }).map((_, index) => (
-              <div key={index} className="space-y-4">
-                <Skeleton className="aspect-square rounded-t-lg" />
-                <div className="p-6 space-y-2">
-                  <Skeleton className="h-4 w-3/4 mx-auto" />
-                  <Skeleton className="h-3 w-1/2 mx-auto" />
-                  <Skeleton className="h-20 w-full" />
-                </div>
-              </div>
+              <TeamMemberCardSkeleton key={index} />
             ))
           ) : (
             leadershipTeam.map((member, index) => (
@@ -347,14 +393,7 @@ export default function AboutClient({ locale }: AboutClientProps) {
           {loading ? (
             // Loading skeleton for core team
             Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="space-y-4">
-                <Skeleton className="aspect-square rounded-t-lg" />
-                <div className="p-6 space-y-2">
-                  <Skeleton className="h-4 w-3/4 mx-auto" />
-                  <Skeleton className="h-3 w-1/2 mx-auto" />
-                  <Skeleton className="h-20 w-full" />
-                </div>
-              </div>
+              <TeamMemberCardSkeleton key={index} />
             ))
           ) : (
             coreTeamMembers.map((member, index) => (
