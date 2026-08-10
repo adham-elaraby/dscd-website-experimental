@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { compressImage } from '@/lib/utils/compressImage'
 import { Label } from '@/components/ui/label'
 import { Upload, X, ChevronLeft, ChevronRight, ImageIcon } from 'lucide-react'
 
@@ -17,8 +18,10 @@ export function GalleryUpload({ urls, onChange, folder = 'events' }: Props) {
   const fileRef = useRef<HTMLInputElement>(null)
 
   async function uploadOne(file: File, token: string) {
+    // Downscaled in the browser because nothing downstream can do it: the edge
+    // runtime has no image library and Storage transformations are off.
     const form = new FormData()
-    form.append('file', file)
+    form.append('file', await compressImage(file, 'gallery'))
     form.append('type', folder)
 
     const res = await fetch('/api/admin/upload', {
@@ -156,7 +159,8 @@ export function GalleryUpload({ urls, onChange, folder = 'events' }: Props) {
               {urls.length > 0 ? 'Add more photos' : 'Click to upload event photos'}
             </p>
             <p className="text-xs text-muted-foreground">
-              Select several at once — JPEG, PNG, WebP or GIF, max 5 MB each
+              Select several at once — photos are downscaled before upload, so
+              full-size camera files are fine. GIFs upload as-is, max 5 MB.
             </p>
           </>
         )}
