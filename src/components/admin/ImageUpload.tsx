@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { compressImage } from '@/lib/utils/compressImage'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Upload, X, AlertCircle } from 'lucide-react'
@@ -34,8 +35,10 @@ export function ImageUpload({ currentUrl, onUpload, folder = 'misc' }: Props) {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) throw new Error('Not authenticated')
 
+      // Team photos render in a 144 px circle and covers in a 384 px card, so
+      // they are downscaled harder than gallery photos.
       const form = new FormData()
-      form.append('file', file)
+      form.append('file', await compressImage(file, folder === 'team' ? 'avatar' : 'cover'))
       form.append('type', folder)
 
       const res = await fetch('/api/admin/upload', {
